@@ -10,6 +10,7 @@ import {
   Image,
   Loader
 } from 'semantic-ui-react'
+import {config} from "../config/config";
 
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
@@ -61,9 +62,13 @@ export function Todos() {
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
-              )}
+              {todo.images &&
+                  todo.images.map((image) => (
+                      <Image key={image.imageId}
+                             src={`${config.bucketEndpoint}${image.imageId}.${image.ext}`}
+                             size="small" wrapped/>
+                  ))
+              }
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>
@@ -77,7 +82,7 @@ export function Todos() {
   async function onTodoDelete(todoId) {
     try {
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience: `https://${config.auth0Domain}/api/v2/`,
         scope: 'delete:todo'
       })
       await deleteTodo(accessToken, todoId)
@@ -91,7 +96,7 @@ export function Todos() {
     try {
       const todo = todos[pos]
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience: `https://${config.auth0Domain}/api/v2/`,
         scope: 'write:todo'
       })
       await patchTodo(accessToken, todo.todoId, {
@@ -128,7 +133,7 @@ export function Todos() {
     async function foo() {
       try {
         const accessToken = await getAccessTokenSilently({
-          audience: `https://test-endpoint.auth0.com/api/v2/`,
+          audience: `https://${config.auth0Domain}/api/v2/`,
           scope: 'read:todos'
         })
         console.log('Access token: ' + accessToken)
